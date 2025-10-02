@@ -2,7 +2,7 @@ name: Build & Deploy Jekyll (custom)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
