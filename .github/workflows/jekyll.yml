@@ -20,6 +20,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install system deps (ImageMagick, Python, pip)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick python3 python3-pip
+
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.2"
@@ -28,6 +33,10 @@ jobs:
       - name: Install deps & Build
         run: |
           bundle install --path vendor/bundle
+          pip3 install --upgrade pip
+          pip3 install nbconvert
+          # Ensure `jupyter` command exists for jekyll-jupyter-notebook
+          pip3 install jupyter
           bundle exec jekyll build -d _site
 
       - uses: actions/upload-pages-artifact@v3
