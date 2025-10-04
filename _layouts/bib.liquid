@@ -42,6 +42,25 @@
           %}
         {% endif %}
       {% endif %}
+
+      {%- comment -%}
+        Extra category badges (e.g., TTS, ASR) shown below venue abbr.
+        Supported bibtex fields: `category`, `categories`, or `keywords`.
+        Multiple values can be comma- or semicolon-separated.
+        Optional colors can be configured in _data/paper_categories.yml
+      {%- endcomment -%}
+      {% assign cat_field = entry.category | default: entry.categories | default: entry.keywords %}
+      {% if cat_field %}
+        {% assign cats_str = cat_field | replace: ';', ',' %}
+        {% assign cats = cats_str | split: ',' %}
+        {% for c in cats %}
+          {% assign cat = c | strip %}
+          {% if cat != '' %}
+            {% assign cat_style = 'style="background-color:#fa1919"' %}
+            <abbr class="badge rounded w-100" {{ cat_style }}>{{ cat }}</abbr>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
     </div>
   {% endif %}
 
@@ -51,91 +70,51 @@
     <div class="title">{{ entry.title }}</div>
     <!-- Author -->
     <div class="author">
-      {% assign author_array_size = entry.author_array | size %}
-
-      {% assign author_array_limit = author_array_size %}
-      {% if site.max_author_limit and author_array_size > site.max_author_limit %}
-        {% assign author_array_limit = site.max_author_limit %}
-      {% endif %}
-
-      {%- for author in entry.author_array limit: author_array_limit -%}
-        {% assign author_is_self = false %}
-        {%- assign author_last_name = author.last | regex_replace: '[*∗†‡§¶‖&^]', '' -%}
-        {%- assign author_last_html = author.last | regex_replace: '([*∗†‡§¶‖&^]+)', '<sup>\1</sup>' -%}
-        {% if site.scholar.last_name contains author_last_name %}
-          {% if site.scholar.first_name contains author.first %}
-            {% assign author_is_self = true %}
-          {% endif %}
-        {%- endif -%}
-        {% assign coauthor_url = null %}
-        {%- assign clean_last_name = author_last_name | downcase | remove_accents -%}
-        {% if site.data.coauthors[clean_last_name] %}
-          {%- for coauthor in site.data.coauthors[clean_last_name] -%}
-            {% if coauthor.firstname contains author.first %}
-              {%- assign coauthor_url = coauthor.url -%}
-              {% break %}
-            {%- endif -%}
-          {% endfor %}
-        {%- endif -%}
-
-        {%- if forloop.length > 1 -%}
-          {% if forloop.first == false -%}
-            {%- if forloop.length > 2 %}, {% elsif forloop.length == 2 %}  {% endif %}
-          {%- endif %}
-          {%- if forloop.last and author_array_limit == author_array_size %}and {% endif -%}
+      {% assign highlight_target = 'jianing yang' %}
+      {% assign raw = entry.author | default: '' %}
+      {% if raw == '' %}
+        {% assign one = entry.author_array | first %}
+        {% if one %}
+          {% assign raw = one.first | append: ' ' | append: one.last %}
         {% endif %}
-        {%- if author_is_self -%}
-          <em>
-            {{- author.first }}
-            {{ author_last_html -}}
-          </em>
-        {%- else -%}
-          {%- if coauthor_url -%}
-            <a href="{{ coauthor_url }}">
-              {{- author.first }}
-              {{ author_last_html -}}
-            </a>
-          {%- else -%}
-            {{- author.first }}
-            {{ author_last_html -}}
-          {% endif %}
-        {%- endif -%}
-      {% endfor %}
-      {%- assign more_authors = author_array_size | minus: author_array_limit -%}
-
-      {%- assign more_authors_hide = more_authors | append: ' more author' -%}
-      {% if more_authors > 0 %}
-        {%- if more_authors > 1 -%}
-          {% assign more_authors_hide = more_authors_hide | append: 's' %}
-        {%- endif -%}
-        {% assign more_authors_show = '' %}
-        {%- for author in entry.author_array offset: author_array_limit -%}
-          {% assign more_authors_show = more_authors_show | append: author.first | append: ' ' | append: author.last %}
-          {% unless forloop.last %}
-            {% assign more_authors_show = more_authors_show | append: ', ' %}
-          {% endunless %}
-        {%- endfor -%}
-        {%- assign more_authors_show = more_authors_show | regex_replace: '([*∗†‡§¶‖&^]+)', '<sup>\1</sup>' -%}
-        , and
-        <span
-          class="more-authors"
-          title="click to view {{ more_authors_hide }}"
-          onclick="
-              var element = $(this);
-              element.attr('title', '');
-              var more_authors_text = element.text() == '{{ more_authors_hide }}' ? '{{ more_authors_show }}' : '{{ more_authors_hide }}';
-              var cursorPosition = 0;
-              var textAdder = setInterval(function(){
-                element.html(more_authors_text.substring(0, cursorPosition + 1));
-                if (++cursorPosition == more_authors_text.length){
-                  clearInterval(textAdder);
-                }
-            }, '{{ site.more_authors_animation_delay }}');
-          "
-        >
-          {{- more_authors_hide -}}
-        </span>
       {% endif %}
+      {%- if raw contains ' and ' -%}
+        {% assign authors = raw | split: ' and ' %}
+        {% assign used_and = true %}
+      {%- elsif raw contains ';' -%}
+        {% assign authors = raw | split: ';' %}
+        {% assign used_and = false %}
+      {%- elsif raw contains ',' -%}
+        {% assign authors = raw | split: ',' %}
+        {% assign used_and = false %}
+      {%- else -%}
+        {% assign authors = raw | split: '||' %}
+        {% assign used_and = false %}
+      {%- endif -%}
+
+      {% for a in authors %}
+        {% assign n = a | strip %}
+        {% assign display = n %}
+        {% if used_and and n contains ',' %}
+          {% assign pieces = n | split: ',' %}
+          {% if pieces.size >= 2 %}
+            {% assign last = pieces[0] | strip %}
+            {% assign first = pieces[1] | strip %}
+            {% assign display = first | append: ' ' | append: last %}
+          {% endif %}
+        {% endif %}
+
+        {% if forloop.first == false %}
+          {% if forloop.last %} and {% else %}, {% endif %}
+        {% endif %}
+
+        {% assign d_down = display | downcase %}
+        {% if d_down == highlight_target %}
+          <strong><u>{{ display }}</u></strong>
+        {% else %}
+          {{ display }}
+        {% endif %}
+      {% endfor %}
       {% if entry.annotation %}
         <i
           class="fa-solid fa-circle-info ml-1"

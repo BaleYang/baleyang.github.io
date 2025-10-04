@@ -41,8 +41,11 @@ layout: default
     <div class="clearfix">{{ content }}</div>
 
     {% if page.social %}
-      <div class="social mt-3">
-        <div class="contact-icons">{% include social_selected.liquid %}</div>
+      <div class="social mt-0 text-center" style="margin-bottom: 2.25rem;">
+        <div class="contact-icons" style="display:inline-block">{% include social_selected.liquid %}</div>
+        {% if site.contact_note %}
+          <div class="contact-note mt-1 mb-0" style="text-align:center">{{ site.contact_note }}</div>
+        {% endif %}
       </div>
     {% endif %}
 
@@ -70,10 +73,7 @@ layout: default
       {% include selected_papers.liquid %}
     {% endif %}
 
-    <!-- Social moved above, keep contact note optional -->
-    {% if page.social and site.contact_note %}
-      <div class="contact-note mt-2">{{ site.contact_note }}</div>
-    {% endif %}
+    <!-- contact note already rendered below icons -->
 
     {% if site.newsletter and site.newsletter.enabled and site.footer_fixed %}
       {% include newsletter.liquid center=true %}

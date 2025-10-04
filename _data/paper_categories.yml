@@ -1,0 +1,9 @@
+TTS:
+  color: "#fde68a"   # amber-200
+ASR:
+  color: "#a7f3d0"   # emerald-200
+S2S:
+  color: "#bfdbfe"   # blue-200
+LLM:
+  color: "#fecaca"   # rose-200
+
