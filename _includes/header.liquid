@@ -20,6 +20,9 @@
             {{- site.title -}}
           {% endif %}
         </a>
+        {% if page.url contains '/publications/' or page.url contains '/cv/' %}
+          <div class="navbar-brand social ml-2 d-none d-sm-inline">{% include social_selected.liquid %}</div>
+        {% endif %}
       {% elsif site.enable_navbar_social %}
         <!-- Social Icons -->
         <div class="navbar-brand social">{% include social.liquid %}</div>

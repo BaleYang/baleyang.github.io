@@ -1,0 +1,14 @@
+{% assign allowed = "email,linkedin_username,scholar_userid" | split: "," %}
+{% for social in site.data.socials %}
+  {% if allowed contains social[0] %}
+    {% case social[0] %}
+      {% when 'email' %}
+        <a href="mailto:{{ social[1] | encode_email }}" title="email"><i class="fa-solid fa-envelope"></i></a>
+      {% when 'linkedin_username' %}
+        <a href="https://www.linkedin.com/in/{{ social[1] }}" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+      {% when 'scholar_userid' %}
+        <a href="https://scholar.google.com/citations?user={{ social[1] }}" title="Google Scholar"><i class="ai ai-google-scholar"></i></a>
+    {% endcase %}
+  {% endif %}
+{% endfor %}
+

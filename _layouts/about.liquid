@@ -40,6 +40,12 @@ layout: default
 
     <div class="clearfix">{{ content }}</div>
 
+    {% if page.social %}
+      <div class="social mt-3">
+        <div class="contact-icons">{% include social_selected.liquid %}</div>
+      </div>
+    {% endif %}
+
     <!-- News -->
     {% if page.announcements and page.announcements.enabled %}
       <h2>
@@ -64,13 +70,9 @@ layout: default
       {% include selected_papers.liquid %}
     {% endif %}
 
-    <!-- Social -->
-    {% if page.social %}
-      <div class="social">
-        <div class="contact-icons">{% include social.liquid %}</div>
-
-        <div class="contact-note">{{ site.contact_note }}</div>
-      </div>
+    <!-- Social moved above, keep contact note optional -->
+    {% if page.social and site.contact_note %}
+      <div class="contact-note mt-2">{{ site.contact_note }}</div>
     {% endif %}
 
     {% if site.newsletter and site.newsletter.enabled and site.footer_fixed %}
