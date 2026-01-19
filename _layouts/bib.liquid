@@ -71,6 +71,7 @@
     <!-- Author -->
     <div class="author">
       {% assign highlight_target = 'jianing yang' %}
+      {% assign contains_equal_contribution = false %}
       {% assign raw = entry.author | default: '' %}
       {% if raw == '' %}
         {% assign one = entry.author_array | first %}
@@ -104,17 +105,25 @@
           {% endif %}
         {% endif %}
 
+        {% if display contains '*' %}
+          {% assign contains_equal_contribution = true %}
+        {% endif %}
+
         {% if forloop.first == false %}
           {% if forloop.last %} and {% else %}, {% endif %}
         {% endif %}
 
-        {% assign d_down = display | downcase %}
+        {% assign d_down = display | downcase | replace: '*', '' | strip %}
         {% if d_down == highlight_target %}
           <strong><u>{{ display }}</u></strong>
         {% else %}
           {{ display }}
         {% endif %}
       {% endfor %}
+
+      {% if contains_equal_contribution %}
+        <span class="equal-contribution"> (* equal contribution)</span>
+      {% endif %}
       {% if entry.annotation %}
         <i
           class="fa-solid fa-circle-info ml-1"
